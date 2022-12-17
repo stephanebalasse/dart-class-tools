@@ -1,0 +1,7 @@
+abstract class X {
+
+}
+
+class XImpl implements X{
+
+}

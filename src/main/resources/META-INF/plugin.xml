@@ -1,0 +1,24 @@
+<idea-plugin>
+    <id>fr.devcafeine.implement_interface_dart</id>
+    <name>Implement_interface_dart</name>
+    <vendor email="stephane.balasse@devcafeine.fr" url="https://www.devcafeine.fr">Devcafeine</vendor>
+    <description><![CDATA[Création d'un plugin intellij pour la generation automatique d'implémentation de class abstraite Dart]]></description>
+    <depends>com.intellij.modules.platform</depends>
+    <depends>com.intellij.java</depends>
+    <depends>Dart</depends>
+    <actions>
+        <action id="Dart.NewDartClassFile" class="fr.devcafeine.implement_interface_dart.CreateDartClassFileAction">
+            <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewFromTemplate"/>
+        </action>
+    </actions>
+    <extensions defaultExtensionNs="com.intellij">
+        <internalFileTemplate name="Dart Class File"/>
+        <internalFileTemplate name="Dart Abstract Class File"/>
+        <createFromTemplateHandler implementation="fr.devcafeine.implement_interface_dart.fileTemplates.DartCreateFromTemplateHandler" id="dart"/>
+        <intentionAction>
+            <className>fr.devcafeine.implement_interface_dart.ImplementAbstractClass</className>
+            <category>Dart</category>
+        </intentionAction>
+    </extensions>
+
+</idea-plugin>
