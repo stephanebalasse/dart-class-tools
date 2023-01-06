@@ -1,8 +1,49 @@
 <idea-plugin>
     <id>fr.devcafeine.implement_interface_dart</id>
-    <name>Implement_interface_dart</name>
-    <vendor email="stephane.balasse@devcafeine.fr" url="https://www.devcafeine.fr">Devcafeine</vendor>
-    <description><![CDATA[Création d'un plugin intellij pour la generation automatique d'implémentation de class abstraite Dart]]></description>
+    <name>Dart Class Tools</name>
+    <vendor email="stephane.balasse@devcafeine.fr" >Devcafeine</vendor>
+    <description><![CDATA[
+        <p>Added new functionality for Dart classes</p>
+        <br/>
+        <br/>
+        <p>Feature</p>
+        <ul>
+            <li>Possibility to create a Dart Class or an Abstract class from the new menu</li>
+            <li>Creation of abstract class implementation from this one</li>
+        </ul>
+        <br/>
+        <em> Not an official plugin.</em>
+    ]]></description>
+
+    <change-notes><![CDATA[
+        <ul>
+             <li>v0.1.4
+                <ul>
+                    <li>Added the possibility to create also the implementation from a class</li>
+                    <li>Fixed a bug when creating a class or an Abstract class on Android studio</li>
+                </ul>
+             </li>
+             <li>v0.1.3
+                <ul>
+                    <li>Support for versions 2021.1 of Android studio</li>
+                </ul>
+            </li>
+            <li>v0.1.2
+                <ul>
+                    <li>Support for versions 2022.2 2022.3 of the intellij</li>
+                </ul>
+            </li>
+            <li>v0.1.1
+                <ul>
+                    <li>Modification of the icon of abstract classes.</li>
+                </ul>
+            </li>
+
+        </ul>
+    ]]>
+    </change-notes>
+
+    <idea-version since-build="211"/>
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.java</depends>
     <depends>Dart</depends>
@@ -14,11 +55,10 @@
     <extensions defaultExtensionNs="com.intellij">
         <internalFileTemplate name="Dart Class File"/>
         <internalFileTemplate name="Dart Abstract Class File"/>
-        <createFromTemplateHandler implementation="fr.devcafeine.implement_interface_dart.fileTemplates.DartCreateFromTemplateHandler" id="dart"/>
+        <createFromTemplateHandler implementation="fr.devcafeine.implement_interface_dart.fileTemplates.DartCreateFromTemplateHandler" id="dart" order="first"/>
         <intentionAction>
             <className>fr.devcafeine.implement_interface_dart.ImplementAbstractClass</className>
             <category>Dart</category>
         </intentionAction>
     </extensions>
-
 </idea-plugin>

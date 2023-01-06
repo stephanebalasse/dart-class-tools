@@ -27,8 +27,6 @@ public class DartCreateFromTemplateHandler extends DefaultCreateFromTemplateHand
                                   @NotNull FileTemplate template,
                                   @NotNull Project project) {
         props.put(ATTRIBUT_CLASS_NAME_DART_UPPER, DartTemplateUtil.ToUpperCamelCase(filename));
-        super.prepareProperties(props, filename, template, project);
     }
-
 
 }

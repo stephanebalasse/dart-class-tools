@@ -1,7 +1,6 @@
 package fr.devcafeine.implement_interface_dart;
 
 import com.intellij.psi.PsiElement;
-import com.jetbrains.lang.dart.psi.DartComponent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

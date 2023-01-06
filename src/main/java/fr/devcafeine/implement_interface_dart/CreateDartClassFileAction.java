@@ -12,6 +12,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
 
+import static com.intellij.util.PlatformIcons.ABSTRACT_CLASS_ICON;
 import static com.intellij.util.PlatformIcons.CLASS_ICON;
 
 
@@ -25,7 +26,7 @@ public class CreateDartClassFileAction extends CreateFileFromTemplateAction {
     protected void buildDialog(@NotNull Project project, @NotNull PsiDirectory directory, CreateFileFromTemplateDialog.@NotNull Builder builder) {
         builder.setTitle("New Dart Class File")
                 .addKind("Class", CLASS_ICON, "Dart Class File")
-                .addKind("Abstract class", CLASS_ICON, "Dart Abstract Class File");
+                .addKind("Abstract class", ABSTRACT_CLASS_ICON, "Dart Abstract Class File");
     }
 
     @Override
@@ -35,7 +36,7 @@ public class CreateDartClassFileAction extends CreateFileFromTemplateAction {
 
     @Override
     protected PsiFile createFileFromTemplate(String name, FileTemplate template, PsiDirectory dir) {
-        return CreateFileFromTemplateAction.createFileFromTemplate(name, template,dir,getDefaultTemplateProperty(),true, Collections.emptyMap());
+        return CreateFileFromTemplateAction.createFileFromTemplate(name, template, dir, getDefaultTemplateProperty(), true, Collections.emptyMap());
     }
 
     @Override

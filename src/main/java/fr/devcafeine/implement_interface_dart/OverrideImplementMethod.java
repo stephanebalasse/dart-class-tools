@@ -20,7 +20,8 @@ public class OverrideImplementMethod extends BaseCreateMethodsFix<DartComponent>
     }
 
     @Override
-    protected @NotNull Template buildFunctionsText(TemplateManager templateManager, DartComponent element) {
+    @NotNull
+    public Template buildFunctionsText(TemplateManager templateManager, DartComponent element) {
         Template template = templateManager.createTemplate(this.getClass().getName(), "Dart");
         template.setToReformat(true);
         template.addTextSegment("@override\n");
