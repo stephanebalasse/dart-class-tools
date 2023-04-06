@@ -17,6 +17,11 @@
 
     <change-notes><![CDATA[
         <ul>
+            <li>v0.1.5
+                <ul>
+                    <li>Support for versions 2023.1 of the intellij</li>
+                </ul>
+            </li>
              <li>v0.1.4
                 <ul>
                     <li>Added the possibility to create also the implementation from a class</li>
