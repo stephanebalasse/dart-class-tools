@@ -62,4 +62,5 @@ public class DartTemplateUtil {
         template.addTextSegment("}");
         return template;
     }
+
 }

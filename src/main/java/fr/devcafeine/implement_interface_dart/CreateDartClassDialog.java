@@ -115,11 +115,11 @@ public class CreateDartClassDialog extends DialogWrapper {
         }
     }
 
-    protected String getBaseDir(){
+    protected String getBaseDir() {
         return myInputFile.getText();
     }
 
-    protected String getClassName(){
+    protected String getClassName() {
         return myTfClassName.getText();
     }
 

@@ -17,11 +17,13 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiManager;
+import com.intellij.psi.impl.source.tree.LeafPsiElement;
+import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.IncorrectOperationException;
+import com.jetbrains.lang.dart.DartFileType;
 import com.jetbrains.lang.dart.DartTokenTypes;
 import com.jetbrains.lang.dart.psi.DartClass;
-import com.jetbrains.lang.dart.psi.DartComponent;
 import com.jetbrains.lang.dart.psi.DartImportStatement;
 import com.jetbrains.lang.dart.util.DartUrlResolver;
 import fr.devcafeine.implement_interface_dart.fileTemplates.DartTemplateUtil;
@@ -45,7 +47,7 @@ public class ImplementAbstractClass extends PsiElementBaseIntentionAction implem
         if (dartClass != null) {
             CreateDartClassDialog dialog = new CreateDartClassDialog(
                     project,
-                    "Implement Abstract Class",
+                    "Implement Class",
                     dartClass.getName() + "Impl",
                     dartClass.getContainingFile().getVirtualFile().getParent().getCanonicalPath()
             );
@@ -77,36 +79,46 @@ public class ImplementAbstractClass extends PsiElementBaseIntentionAction implem
     }
 
 
+
     @Override
     public boolean isAvailable(@NotNull Project project, Editor editor, @NotNull PsiElement element) {
-        if (!element.getLanguage().getID().equals("Dart")) {
+
+        if (!element.getLanguage().getID().equalsIgnoreCase(DartFileType.INSTANCE.getDefaultExtension())) {
             return false;
         }
         final PsiElement id = element.getParent();
-        if (id == null) {
+        if (id == null || id.getParent() == null) {
             return false;
         }
         final PsiElement parent = id.getParent();
-        if (parent == null) {
-            return false;
-        }
         final ASTNode node = parent.getNode();
-        if (node == null || node.getTreeParent() == null || node.getTreeParent().getElementType() != DartTokenTypes.CLASS_DEFINITION) {
+        if(node == null || node.getTreeParent() == null || node.getTreeParent().getFirstChildNode() == null || node.getTreeParent().getFirstChildNode().getPsi() == null){
             return false;
         }
-        final DartComponent classDefinition = PsiTreeUtil.getParentOfType(element, DartComponent.class);
+        return canBeImplemented(node.getTreeParent().getFirstChildNode().getPsi());
 
-        return classDefinition != null;
     }
 
     @NotNull
     public String getText() {
-        return "Implement abstract class";
+        return "Implement class";
     }
 
     @Override
     public @NotNull @IntentionFamilyName String getFamilyName() {
-        return "Implement abstract class";
+        return "Implement class";
+    }
+    private boolean canBeImplemented(PsiElement element) {
+        if(element instanceof LeafPsiElement){
+            final IElementType elementType = ((LeafPsiElement) element).getElementType();
+            if(elementType == DartTokenTypes.BASE || elementType == DartTokenTypes.FINAL || elementType == DartTokenTypes.SEALED ){
+                return false;
+            }
+        }
+        if(element.getNextSibling() != null){
+            return canBeImplemented(element.getNextSibling());
+        }
+        return true;
     }
 }
 

@@ -5,6 +5,7 @@ import com.intellij.codeInsight.template.TemplateManager;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.jetbrains.lang.dart.ide.generation.BaseCreateMethodsFix;
 import com.jetbrains.lang.dart.psi.*;
+import com.jetbrains.lang.dart.psi.impl.DartMethodDeclarationImpl;
 import com.jetbrains.lang.dart.util.DartPresentableUtil;
 import org.jetbrains.annotations.NotNull;
 
@@ -23,6 +24,12 @@ public class OverrideImplementMethod extends BaseCreateMethodsFix<DartComponent>
     @NotNull
     public Template buildFunctionsText(TemplateManager templateManager, DartComponent element) {
         Template template = templateManager.createTemplate(this.getClass().getName(), "Dart");
+        if (element.getFirstChild() != null
+                && element.getFirstChild().getParent() != null
+                && ((DartMethodDeclarationImpl) element.getFirstChild().getParent()).isConstructor()
+        ) {
+            return template;
+        }
         template.setToReformat(true);
         template.addTextSegment("@override\n");
         boolean isField = element instanceof DartVarAccessDeclaration || element instanceof DartVarDeclarationListPart;
@@ -31,8 +38,8 @@ public class OverrideImplementMethod extends BaseCreateMethodsFix<DartComponent>
             template.addTextSegment(" ");
         }
 
-        DartReturnType returnType = (DartReturnType) PsiTreeUtil.getChildOfType(element, DartReturnType.class);
-        DartType dartType = (DartType) PsiTreeUtil.getChildOfType(element, DartType.class);
+        DartReturnType returnType = PsiTreeUtil.getChildOfType(element, DartReturnType.class);
+        DartType dartType = PsiTreeUtil.getChildOfType(element, DartType.class);
         if (returnType != null) {
             template.addTextSegment(DartPresentableUtil.buildTypeText(element, returnType, this.specializations));
             template.addTextSegment(" ");
@@ -56,8 +63,8 @@ public class OverrideImplementMethod extends BaseCreateMethodsFix<DartComponent>
             }
 
             template.addTextSegment("; ");
-            return template;
         } else {
+
             if (element.isOperator()) {
                 template.addTextSegment("operator ");
             }
@@ -79,7 +86,7 @@ public class OverrideImplementMethod extends BaseCreateMethodsFix<DartComponent>
             template.addTextSegment("\n");
             template.addTextSegment("throw UnimplementedError();");
             template.addTextSegment("\n} ");
-            return template;
         }
+        return template;
     }
 }

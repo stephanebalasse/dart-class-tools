@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>fr.devcafeine.implement_interface_dart</id>
     <name>Dart Class Tools</name>
-    <vendor email="stephane.balasse@devcafeine.fr" >Devcafeine</vendor>
+    <vendor email="stephane.balasse@devcafeine.fr">Devcafeine</vendor>
     <description><![CDATA[
         <p>Added new functionality for Dart classes</p>
         <br/>
@@ -10,6 +10,7 @@
         <ul>
             <li>Possibility to create a Dart Class or an Abstract class from the new menu</li>
             <li>Creation of abstract class implementation from this one</li>
+            <li>Support for creating and opening Dart test files or widget test files.</li>
         </ul>
         <br/>
         <em> Not an official plugin.</em>
@@ -17,6 +18,17 @@
 
     <change-notes><![CDATA[
         <ul>
+           <li>v0.1.7
+                <ul>
+                    <li>Support version since 2022.3.1</li>
+                </ul>
+            </li>
+            <li>v0.1.6
+                <ul>
+                    <li>Support for creating and opening Dart test files or widget test files.</li>
+                    <li>Handling various types of classes in Dart 3. base class, sealed class, final class ...</li>
+                </ul>
+            </li>
             <li>v0.1.5
                 <ul>
                     <li>Support for versions 2023.1 of the intellij</li>
@@ -48,21 +60,48 @@
     ]]>
     </change-notes>
 
-    <idea-version since-build="211"/>
+    <idea-version since-build="223"/>
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.java</depends>
     <depends>Dart</depends>
     <actions>
-        <action id="Dart.NewDartClassFile" class="fr.devcafeine.implement_interface_dart.CreateDartClassFileAction">
+        <action id="fr.devcafeine.implement_interface_dart.CreateDartClassFileAction"
+                class="fr.devcafeine.implement_interface_dart.CreateDartClassFileAction">
             <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewFromTemplate"/>
         </action>
     </actions>
     <extensions defaultExtensionNs="com.intellij">
         <internalFileTemplate name="Dart Class File"/>
         <internalFileTemplate name="Dart Abstract Class File"/>
-        <createFromTemplateHandler implementation="fr.devcafeine.implement_interface_dart.fileTemplates.DartCreateFromTemplateHandler" id="dart" order="first"/>
+        <internalFileTemplate name="Dart Abstract Base Class File"/>
+        <internalFileTemplate name="Dart Abstract Final Class File"/>
+        <internalFileTemplate name="Dart Abstract Interface Class File"/>
+        <internalFileTemplate name="Dart Base Class File"/>
+        <internalFileTemplate name="Dart Final Class File"/>
+        <internalFileTemplate name="Dart Interface Class File"/>
+        <internalFileTemplate name="Dart Sealed Class File"/>
+        <createFromTemplateHandler
+                implementation="fr.devcafeine.implement_interface_dart.fileTemplates.DartCreateFromTemplateHandler"
+                id="dart" order="first"/>
         <intentionAction>
+            <language>Dart</language>
             <className>fr.devcafeine.implement_interface_dart.ImplementAbstractClass</className>
+            <category>Dart</category>
+        </intentionAction>
+    </extensions>
+    <extensions defaultExtensionNs="com.intellij">
+        <internalFileTemplate name="Dart Test File"/>
+        <intentionAction>
+            <language>Dart</language>
+            <className>fr.devcafeine.implement_interface_dart.GenerateTestFileIntention</className>
+            <category>Dart</category>
+        </intentionAction>
+    </extensions>
+    <extensions defaultExtensionNs="com.intellij">
+        <internalFileTemplate name="Dart Widget Test File"/>
+        <intentionAction>
+            <language>Dart</language>
+            <className>fr.devcafeine.implement_interface_dart.GenerateWidgetTestFileIntention</className>
             <category>Dart</category>
         </intentionAction>
     </extensions>
