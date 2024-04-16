@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "fr.devcafeine"
-version = "0.1.7"
+version = "0.1.8"
 
 repositories {
     mavenCentral()
@@ -17,9 +17,9 @@ java {
 // Configure Gradle IntelliJ Plugin
 // Read more: https://plugins.jetbrains.com/docs/intellij/tools-gradle-intellij-plugin.html
 intellij {
-    version.set("2023.1.2")
+    version.set("2024.1")
     type.set("IU") // Target IDE Platform
-    plugins.set(listOf("Dart:231.9065", "com.intellij.java"))
+    plugins.set(listOf("Dart:241.15845", "com.intellij.java"))
 }
 
 tasks {
@@ -31,7 +31,7 @@ tasks {
 
     patchPluginXml {
         sinceBuild.set("223")
-        untilBuild.set("240.*")
+        untilBuild.set("250.*")
     }
 
     signPlugin {
