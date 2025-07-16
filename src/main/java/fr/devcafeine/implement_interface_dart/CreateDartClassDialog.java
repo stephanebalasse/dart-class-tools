@@ -40,11 +40,7 @@ public class CreateDartClassDialog extends DialogWrapper {
         myInformationLabel.setText("Create class");
         myTfClassName.setText(myClassName);
         myInputFile.setText(canonicalPath);
-        myInputFile.addBrowseFolderListener("Choose Destination Directory",
-                "",
-                project,
-                FileChooserDescriptorFactory.createSingleFolderDescriptor()
-        );
+        myInputFile.addBrowseFolderListener(project, FileChooserDescriptorFactory.createSingleFolderDescriptor());
     }
 
     @Override

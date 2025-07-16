@@ -18,6 +18,11 @@
 
     <change-notes><![CDATA[
         <ul>
+            <li>v0.1.9
+                <ul>
+                    <li>Support version since 2025.1</li>
+                </ul>
+            </li>
             <li>v0.1.8
                 <ul>
                     <li>Support version since 2024.1</li>

@@ -1,37 +1,52 @@
 plugins {
     id("java")
-    id("org.jetbrains.intellij") version "1.15.0"
+    id("org.jetbrains.intellij.platform") version "2.5.0"
 }
 
 group = "fr.devcafeine"
-version = "0.1.8"
+version = "0.1.9"
 
 repositories {
     mavenCentral()
+
+    intellijPlatform {
+        defaultRepositories()
+    }
 }
+dependencies {
+    intellijPlatform {
+        intellijIdeaCommunity("2025.1")
+        plugin("Dart", "251.25267.1")
+    }
+}
+
 java {
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
-}
-
-// Configure Gradle IntelliJ Plugin
-// Read more: https://plugins.jetbrains.com/docs/intellij/tools-gradle-intellij-plugin.html
-intellij {
-    version.set("2024.1")
-    type.set("IU") // Target IDE Platform
-    plugins.set(listOf("Dart:241.15845", "com.intellij.java"))
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(17))
+    }
 }
 
 tasks {
-    // Set the JVM compatibility versions
-    withType<JavaCompile> {
-        sourceCompatibility = "17"
-        targetCompatibility = "17"
-    }
-
     patchPluginXml {
         sinceBuild.set("223")
-        untilBuild.set("250.*")
+        untilBuild.set("251.*")
+    }
+
+    runIde {
+        jvmArgs("-Xmx2g")
+    }
+
+    buildSearchableOptions {
+        enabled = false
+    }
+
+    test {
+        useJUnitPlatform()
+        testLogging {
+            events("passed", "skipped", "failed")
+        }
     }
 
     signPlugin {
@@ -43,5 +58,4 @@ tasks {
     publishPlugin {
         token.set(System.getenv("PUBLISH_TOKEN"))
     }
-
 }
