@@ -72,7 +72,6 @@
 
     <idea-version since-build="223"/>
     <depends>com.intellij.modules.platform</depends>
-    <depends>com.intellij.java</depends>
     <depends>Dart</depends>
     <actions>
         <action id="fr.devcafeine.implement_interface_dart.CreateDartClassFileAction"

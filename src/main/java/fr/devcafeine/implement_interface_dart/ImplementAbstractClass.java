@@ -35,8 +35,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.*;
 
-
-
 public class ImplementAbstractClass extends PsiElementBaseIntentionAction implements IntentionAction {
 
     private static final Logger log = LoggerFactory.getLogger(ImplementAbstractClass.class);
