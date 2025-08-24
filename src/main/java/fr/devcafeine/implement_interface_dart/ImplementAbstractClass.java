@@ -9,14 +9,18 @@ import com.intellij.codeInspection.util.IntentionFamilyName;
 import com.intellij.ide.fileTemplates.FileTemplate;
 import com.intellij.ide.fileTemplates.FileTemplateUtil;
 import com.intellij.lang.ASTNode;
+import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
+import com.intellij.psi.codeStyle.CodeStyleManager;
 import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import com.intellij.psi.search.FilenameIndex;
 import com.intellij.psi.search.GlobalSearchScope;
@@ -29,15 +33,13 @@ import com.jetbrains.lang.dart.psi.*;
 import com.jetbrains.lang.dart.util.DartUrlResolver;
 import fr.devcafeine.implement_interface_dart.fileTemplates.DartTemplateUtil;
 import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.*;
 
 public class ImplementAbstractClass extends PsiElementBaseIntentionAction implements IntentionAction {
 
-    private static final Logger log = LoggerFactory.getLogger(ImplementAbstractClass.class);
+    private static final String FUTURE_TYPE = "Future";
 
     @Override
     public boolean startInWriteAction() {
@@ -51,13 +53,7 @@ public class ImplementAbstractClass extends PsiElementBaseIntentionAction implem
 
             List<String> genericTypes = getGenericTypes(dartClass);
 
-            CreateDartDialog dialog = new CreateDartDialog(
-                    project,
-                    "Implement Class",
-                    dartClass.getName() + "Impl",
-                    dartClass.getContainingFile().getVirtualFile().getParent().getCanonicalPath(),
-                    genericTypes
-            );
+            CreateDartDialog dialog = new CreateDartDialog(project, "Implement Class", dartClass.getName() + "Impl", dartClass.getContainingFile().getVirtualFile().getParent().getCanonicalPath(), genericTypes);
 
             if (dialog.showAndGet()) {
                 try {
@@ -72,19 +68,13 @@ public class ImplementAbstractClass extends PsiElementBaseIntentionAction implem
                     VirtualFile virtualFile = VfsUtil.createDirectories(dirPath);
                     final PsiDirectory psiDirectory = psiManager.findDirectory(virtualFile);
 
-                    Template template = generateTemplateImplementationAbstractClass(
-                            project,
-                            dartClass,
-                            dartUrlResolver,
-                            imports,
-                            templateManager,
-                            className,
-                            genericTypeMappings
-                    );
+                    Template template = generateTemplateImplementationAbstractClass(project, dartClass, dartUrlResolver, imports, templateManager, className, genericTypeMappings);
 
                     FileTemplate fileTemplate = FileTemplateUtil.createTemplate("template", "dart", template.getTemplateText(), new FileTemplate[]{});
                     if (psiDirectory != null) {
-                        CreateDartClassFileAction.createFileFromTemplate(DartTemplateUtil.camelToSnake(className), fileTemplate, psiDirectory, "", true);
+                        PsiFile createdFile = CreateDartClassFileAction.createFileFromTemplate(DartTemplateUtil.camelToSnake(className), fileTemplate, psiDirectory, "", true);
+                        formatAndOpenFile(project, createdFile);
+
                     }
 
                 } catch (IncorrectOperationException | IOException e) {
@@ -113,15 +103,7 @@ public class ImplementAbstractClass extends PsiElementBaseIntentionAction implem
         return result;
     }
 
-    public static Template generateTemplateImplementationAbstractClass(
-            Project project,
-            DartClass dartClass,
-            DartUrlResolver dartUrlResolver,
-            List<PsiElement> imports,
-            TemplateManager templateManager,
-            String className,
-            Map<String, String> genericTypeMappings
-    ) {
+    public static Template generateTemplateImplementationAbstractClass(Project project, DartClass dartClass, DartUrlResolver dartUrlResolver, List<PsiElement> imports, TemplateManager templateManager, String className, Map<String, String> genericTypeMappings) {
         final Template template = templateManager.createTemplate(dartClass.getClass().getName(), "Dart");
         DartClassBody classBody = PsiTreeUtil.getChildOfType(dartClass, DartClassBody.class);
 
@@ -154,14 +136,16 @@ public class ImplementAbstractClass extends PsiElementBaseIntentionAction implem
         template.addTextSegment(" {\n");
 
         if (classBody != null) {
-            List<DartMethodDeclaration> methods = PsiTreeUtil.getChildrenOfTypeAsList(classBody, DartMethodDeclaration.class);
+            Collection<DartMethodDeclaration> methods = PsiTreeUtil.findChildrenOfType(dartClass, DartMethodDeclaration.class);
             for (DartMethodDeclaration method : methods) {
-                String methodName = Objects.requireNonNull(method.getComponentName()).getText();
                 String returnType = method.getReturnType() != null ? method.getReturnType().getText() : "void";
+                boolean isFuture = returnType.startsWith(FUTURE_TYPE);
+                String methodName = Objects.requireNonNull(method.getComponentName()).getText();
+                String returnTypeString = getReturnString(returnType, isFuture);
                 String parameters = method.getFormalParameterList().getText();
 
                 template.addTextSegment("  @override\n");
-                template.addTextSegment("  " + returnType + " " + methodName + parameters + " {\n");
+                template.addTextSegment("  " + returnTypeString + " " + methodName + parameters + (isFuture ? " async" : "") + " {\n");
                 template.addTextSegment("    // TODO: implement " + methodName + "\n");
                 template.addTextSegment("    throw UnimplementedError();\n");
                 template.addTextSegment("  }\n");
@@ -171,7 +155,6 @@ public class ImplementAbstractClass extends PsiElementBaseIntentionAction implem
         template.addTextSegment("}\n");
         return template;
     }
-
 
 
     @Override
@@ -203,6 +186,26 @@ public class ImplementAbstractClass extends PsiElementBaseIntentionAction implem
         return "Implement class";
     }
 
+
+    private static @NotNull String getReturnString(String originalType, boolean isFuture) {
+        if (!isFuture) {
+            return originalType;
+        }
+
+        if (!originalType.contains("<") || !originalType.contains(">")) {
+            return FUTURE_TYPE + "<void>";
+        }
+
+        String innerType = extractInnerType(originalType);
+        return FUTURE_TYPE + "<" + innerType + ">";
+    }
+
+    private static String extractInnerType(String type) {
+        int start = type.indexOf('<') + 1;
+        int end = type.lastIndexOf('>');
+        return type.substring(start, end).trim();
+    }
+
     private boolean canBeImplemented(PsiElement element) {
         if (element instanceof LeafPsiElement) {
             final IElementType elementType = ((LeafPsiElement) element).getElementType();
@@ -215,6 +218,16 @@ public class ImplementAbstractClass extends PsiElementBaseIntentionAction implem
         }
         return true;
     }
+
+    private void formatAndOpenFile(Project project, PsiFile file) {
+        if (file == null) return;
+
+        WriteCommandAction.runWriteCommandAction(project, () -> {
+            CodeStyleManager.getInstance(project).reformat(file);
+            FileEditorManager.getInstance(project).openFile(file.getVirtualFile(), true);
+        });
+    }
+
 
     private static String toSnakeCase(String input) {
         return input.replaceAll("([a-z])([A-Z])", "$1_$2").toLowerCase();

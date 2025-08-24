@@ -18,6 +18,28 @@
 
     <change-notes><![CDATA[
         <ul>
+            <li>0.1.11
+                <ul>
+                    <li>New: Extract selected code into a top-level Dart constant.</li>
+                    <li>Naming: lowerCamelCase for generated constant names.</li>
+                    <li>Refactor menu: Added action under Refactor > Introduce (after "Introduce Variable").</li>
+                    <li>Shortcut: Default macOS shortcut Option+Command+C; default keymap remains Ctrl+Shift+C.</li>
+                </ul>
+            </li>
+            <li>0.1.10
+                <ul>
+                    <li>Automatic code formatting after new class creation.</li>
+                    <li>Automatic addition of the `async` keyword for methods returning a `Future`.</li>
+                    <li>Better handling of `Future` return types :
+                        <ul>
+                            <li>Improved support for `Future<void>`</li>
+                            <li>Correct extraction of nested generic types from `Future`.</li>
+                            <li>Preservation of generic type structure</li>
+                        </ul>
+                    </li>
+                    <li>Code refactoring for better maintenance.</li>
+                </ul>
+            </li>
             <li>v0.1.9
                 <ul>
                     <li>Support version since 2025.1</li>
@@ -78,6 +100,12 @@
                 class="fr.devcafeine.implement_interface_dart.CreateDartClassFileAction">
             <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewFromTemplate"/>
         </action>
+        <action id="fr.devcafeine.implement_interface_dart.IntroduceDartConstantAction"
+                class="fr.devcafeine.implement_interface_dart.IntroduceDartConstantAction">
+            <add-to-group group-id="IntroduceActionsGroup" anchor="after" relative-to-action="IntroduceVariable"/>
+            <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt C"/>
+            <keyboard-shortcut keymap="Mac OS X" first-keystroke="meta alt C"/>
+        </action>
     </actions>
     <extensions defaultExtensionNs="com.intellij">
         <internalFileTemplate name="Dart Class File"/>
@@ -111,6 +139,13 @@
         <intentionAction>
             <language>Dart</language>
             <className>fr.devcafeine.implement_interface_dart.GenerateWidgetTestFileIntention</className>
+            <category>Dart</category>
+        </intentionAction>
+    </extensions>
+    <extensions defaultExtensionNs="com.intellij">
+        <intentionAction>
+            <language>Dart</language>
+            <className>fr.devcafeine.implement_interface_dart.IntroduceDartConstantIntention</className>
             <category>Dart</category>
         </intentionAction>
     </extensions>
