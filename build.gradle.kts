@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "fr.devcafeine"
-version = "0.1.11"
+version = "0.1.10"
 
 repositories {
     mavenCentral()

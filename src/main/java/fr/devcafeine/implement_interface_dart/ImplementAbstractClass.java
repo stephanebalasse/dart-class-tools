@@ -39,8 +39,6 @@ import java.util.*;
 
 public class ImplementAbstractClass extends PsiElementBaseIntentionAction implements IntentionAction {
 
-    private static final String FUTURE_TYPE = "Future";
-
     @Override
     public boolean startInWriteAction() {
         return false;
@@ -136,24 +134,51 @@ public class ImplementAbstractClass extends PsiElementBaseIntentionAction implem
         template.addTextSegment(" {\n");
 
         if (classBody != null) {
-            Collection<DartMethodDeclaration> methods = PsiTreeUtil.findChildrenOfType(dartClass, DartMethodDeclaration.class);
-            for (DartMethodDeclaration method : methods) {
-                String returnType = method.getReturnType() != null ? method.getReturnType().getText() : "void";
-                boolean isFuture = returnType.startsWith(FUTURE_TYPE);
-                String methodName = Objects.requireNonNull(method.getComponentName()).getText();
-                String returnTypeString = getReturnString(returnType, isFuture);
-                String parameters = method.getFormalParameterList().getText();
-
-                template.addTextSegment("  @override\n");
-                template.addTextSegment("  " + returnTypeString + " " + methodName + parameters + (isFuture ? " async" : "") + " {\n");
-                template.addTextSegment("    // TODO: implement " + methodName + "\n");
-                template.addTextSegment("    throw UnimplementedError();\n");
-                template.addTextSegment("  }\n");
+            DartClassMembers members = classBody.getClassMembers();
+            if (members != null) {
+                StringBuilder templateText = new StringBuilder();
+                for (PsiElement member : members.getChildren()) {
+                    buildFunctionsText(templateText, member);
+                }
+                template.addTextSegment(templateText.toString());
             }
+
         }
 
         template.addTextSegment("}\n");
         return template;
+    }
+
+    private static void buildFunctionsText(StringBuilder out, PsiElement member) {
+        if (member instanceof DartMethodDeclaration m) {
+            String name = Objects.requireNonNull(m.getComponentName()).getName();
+            String retType = m.getReturnType() != null ? m.getReturnType().getText() : "void";
+            m.getFormalParameterList();
+            String params = m.getFormalParameterList().getText();
+
+            out.append("@override\n")
+                    .append(retType).append(" ").append(name).append(params).append(" {\n")
+                    .append("  // TODO: implement ").append(name).append("\n")
+                    .append("  throw UnimplementedError();\n")
+                    .append("}\n\n");
+
+        } else if (member instanceof DartGetterDeclaration g) {
+            String name = g.getComponentName().getName();
+            String retType = g.getReturnType() != null ? g.getReturnType().getText() : "dynamic";
+
+            out.append("@override\n")
+                    .append(retType).append(" get ").append(name).append(" => throw UnimplementedError();\n\n");
+
+        } else if (member instanceof DartSetterDeclaration s) {
+            String name = s.getComponentName().getName();
+            String paramList = s.getFormalParameterList() != null ? s.getFormalParameterList().getText() : "(dynamic value)";
+
+            out.append("@override\n")
+                    .append("set ").append(name).append(paramList).append(" {\n")
+                    .append("  // TODO: implement set ").append(name).append("\n")
+                    .append("}\n\n");
+
+        }
     }
 
 
@@ -184,26 +209,6 @@ public class ImplementAbstractClass extends PsiElementBaseIntentionAction implem
     @Override
     public @NotNull @IntentionFamilyName String getFamilyName() {
         return "Implement class";
-    }
-
-
-    private static @NotNull String getReturnString(String originalType, boolean isFuture) {
-        if (!isFuture) {
-            return originalType;
-        }
-
-        if (!originalType.contains("<") || !originalType.contains(">")) {
-            return FUTURE_TYPE + "<void>";
-        }
-
-        String innerType = extractInnerType(originalType);
-        return FUTURE_TYPE + "<" + innerType + ">";
-    }
-
-    private static String extractInnerType(String type) {
-        int start = type.indexOf('<') + 1;
-        int end = type.lastIndexOf('>');
-        return type.substring(start, end).trim();
     }
 
     private boolean canBeImplemented(PsiElement element) {

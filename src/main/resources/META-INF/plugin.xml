@@ -18,18 +18,16 @@
 
     <change-notes><![CDATA[
         <ul>
-            <li>0.1.11
+            <li>0.1.10
                 <ul>
                     <li>New: Extract selected code into a top-level Dart constant.</li>
                     <li>Naming: lowerCamelCase for generated constant names.</li>
                     <li>Refactor menu: Added action under Refactor > Introduce (after "Introduce Variable").</li>
                     <li>Shortcut: Default macOS shortcut Option+Command+C; default keymap remains Ctrl+Shift+C.</li>
                 </ul>
-            </li>
-            <li>0.1.10
                 <ul>
                     <li>Automatic code formatting after new class creation.</li>
-                    <li>Automatic addition of the `async` keyword for methods returning a `Future`.</li>
+                    <li>Support for implementing getters and setters when implementing abstract classes</li>
                     <li>Better handling of `Future` return types :
                         <ul>
                             <li>Improved support for `Future<void>`</li>

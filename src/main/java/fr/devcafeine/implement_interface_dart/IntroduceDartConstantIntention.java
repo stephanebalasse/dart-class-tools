@@ -18,6 +18,8 @@ import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static fr.devcafeine.implement_interface_dart.fileTemplates.DartTemplateUtil.toLowerCamelCase;
+
 public class IntroduceDartConstantIntention implements IntentionAction {
 
     @Override
@@ -105,31 +107,8 @@ public class IntroduceDartConstantIntention implements IntentionAction {
         if (t.isEmpty()) return "newConstant";
         String camel = toLowerCamelCase(t);
         if (camel.matches("[0-9].*")) {
-            camel = "c" + camel; // cannot start with digit
+            camel = "c" + camel;
         }
         return camel;
-    }
-
-    private static String toLowerCamelCase(String name) {
-        if (name == null) return "";
-        String s = name.trim();
-        s = s.replaceAll("[^A-Za-z0-9]+", " ");
-        // Split camelCase and acronyms into separate words
-        s = s.replaceAll("([a-z\\d])([A-Z])", "$1 $2");
-        s = s.replaceAll("([A-Z]+)([A-Z][a-z])", "$1 $2");
-        String[] parts = s.trim().isEmpty() ? new String[0] : s.trim().split("\\s+");
-        StringBuilder b = new StringBuilder();
-        for (int i = 0; i < parts.length; i++) {
-            String p = parts[i];
-            if (p.isEmpty()) continue;
-            if (i == 0) {
-                b.append(p.toLowerCase(Locale.ROOT));
-            } else {
-                b.append(Character.toUpperCase(p.charAt(0)));
-                if (p.length() > 1) b.append(p.substring(1).toLowerCase(Locale.ROOT));
-            }
-        }
-
-        return b.toString().replaceAll("[^A-Za-z0-9]", "");
     }
 }

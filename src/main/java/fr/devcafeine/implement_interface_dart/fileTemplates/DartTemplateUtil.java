@@ -1,19 +1,6 @@
 package fr.devcafeine.implement_interface_dart.fileTemplates;
 
-import com.intellij.codeInsight.template.Template;
-import com.intellij.codeInsight.template.TemplateManager;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.util.PsiTreeUtil;
-import com.jetbrains.lang.dart.psi.DartClass;
-import com.jetbrains.lang.dart.psi.DartClassBody;
-import com.jetbrains.lang.dart.psi.DartComponent;
-import com.jetbrains.lang.dart.psi.DartMethodDeclaration;
-import com.jetbrains.lang.dart.util.DartUrlResolver;
-import fr.devcafeine.implement_interface_dart.OverrideImplementMethod;
-import fr.devcafeine.implement_interface_dart.PresentableUtil;
-
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Locale;
 
 public class DartTemplateUtil {
 
@@ -41,26 +28,26 @@ public class DartTemplateUtil {
         return builder.toString();
     }
 
-    public static Template generateTemplateImplementationAbstractClass(
-            DartClass dartClass,
-            DartUrlResolver dartUrlResolver,
-            List<PsiElement> imports,
-            TemplateManager templateManager,
-            String className
-    ) {
-        final Template template = templateManager.createTemplate(dartClass.getClass().getName(), "Dart");
-        List<DartComponent> dartComponents = new ArrayList<>(PsiTreeUtil.collectElementsOfType(PsiTreeUtil.getChildOfType(dartClass, DartClassBody.class), DartMethodDeclaration.class));
-        template.setToReformat(true);
-        template.addTextSegment("import '" + dartUrlResolver.getDartUrlForFile(dartClass.getContainingFile().getVirtualFile()) + "';");
-        template.addTextSegment(PresentableUtil.buildImportText(imports));
-        template.addTextSegment("class " + className + " implements ");
-        template.addTextSegment(dartClass.getName() != null ? dartClass.getName() : "");
-        template.addTextSegment("{\n");
-        dartComponents.forEach((dartComponent -> {
-            template.addTextSegment(new OverrideImplementMethod(dartClass).buildFunctionsText(templateManager, dartComponent).getTemplateText());
-        }));
-        template.addTextSegment("}");
-        return template;
+    public static String toLowerCamelCase(String name) {
+        if (name == null) return "";
+        String s = name.trim();
+        s = s.replaceAll("[^A-Za-z0-9]+", " ");
+        s = s.replaceAll("([a-z\\d])([A-Z])", "$1 $2");
+        s = s.replaceAll("([A-Z]+)([A-Z][a-z])", "$1 $2");
+        String[] parts = s.trim().isEmpty() ? new String[0] : s.trim().split("\\s+");
+        StringBuilder b = new StringBuilder();
+        for (int i = 0; i < parts.length; i++) {
+            String p = parts[i];
+            if (p.isEmpty()) continue;
+            if (i == 0) {
+                b.append(p.toLowerCase(Locale.ROOT));
+            } else {
+                b.append(Character.toUpperCase(p.charAt(0)));
+                if (p.length() > 1) b.append(p.substring(1).toLowerCase(Locale.ROOT));
+            }
+        }
+
+        return b.toString().replaceAll("[^A-Za-z0-9]", "");
     }
 
 }
